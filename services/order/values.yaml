@@ -1,6 +1,7 @@
 replicaCount: 2
-message: "order service"
+message: "order service v2"
 migration:
   enabled: true
+  fail: true
 smokeTest:
   enabled: true
