@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: shop
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+  - git:
+      repoURL: https://github.com/mannyu-ai/gitops-oci.git
+      revision: main
+      files:
+      - path: services/*/config.yaml             # 讀每個服務的 chartVersion
+  template:
+    metadata:
+      name: '{{ .path.basename }}'
+    spec:
+      project: default
+      sources:
+      - repoURL: oci://192.168.188.133:30500/charts/shop-app   # ⭐ 來源一：chart（原生 OCI）
+        path: .                                                # ⭐ 用解開後的整包
+        targetRevision: '{{ .chartVersion }}'                  # ⭐ 版本來自 config.yaml
+        helm:
+          releaseName: '{{ .path.basename }}'
+          valueFiles:
+          - $values/services/{{ .path.basename }}/values.yaml
+      - repoURL: https://github.com/mannyu-ai/gitops-oci.git   # 來源二：values（Git main）
+        targetRevision: main
+        ref: values
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: shop
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true
+        syncOptions:
+        - CreateNamespace=true
