@@ -1,2 +1,6 @@
 replicaCount: 2
 message: "order service"
+migration:
+  enabled: true
+smokeTest:
+  enabled: true
