@@ -1,0 +1,4 @@
+message: "member service"
+resources:
+  limits:
+    memory: 128Mi

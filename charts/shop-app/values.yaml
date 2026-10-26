@@ -1,0 +1,18 @@
+replicaCount: 1
+image:
+  repository: ghcr.io/stefanprodan/podinfo   # 用 podinfo 假裝是 Spring Boot 服務
+  tag: 6.15.0                                # ⭐ image 版本：CI 改這個來部署新程式
+port: 9898
+message: "default"
+resources:
+  requests:
+    cpu: 50m
+    memory: 32Mi
+  limits:
+    cpu: 200m
+    memory: 64Mi
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  cpu: 70

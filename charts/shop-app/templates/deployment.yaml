@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}    {{- /* 方便看出用的是哪一版 chart */}}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}               {{- /* 開了自動擴充就交給 HPA */}}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: app
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        ports:
+        - containerPort: {{ .Values.port }}
+        env:
+        - name: PODINFO_UI_MESSAGE
+          value: {{ .Values.message | quote }}
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: {{ .Values.port }}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
