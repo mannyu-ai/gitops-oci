@@ -16,3 +16,8 @@ autoscaling:
   minReplicas: 1
   maxReplicas: 3
   cpu: 70
+migration:
+  enabled: false
+  fail: false
+smokeTest:
+  enabled: false

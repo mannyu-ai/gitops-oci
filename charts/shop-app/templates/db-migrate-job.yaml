@@ -1,0 +1,28 @@
+{{- if .Values.migration.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-db-migrate
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade             {{- /* Helm 的寫法 */}}
+    helm.sh/hook-delete-policy: before-hook-creation  {{- /* 下次執行前先刪舊的（4D 課：Job 名稱不能重複） */}}
+spec:
+  backoffLimit: 0                                     {{- /* 失敗不重試，方便觀察 */}}
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: migrate
+        image: busybox
+        command:
+        - sh
+        - -c
+        - |
+          echo "migrating DB for {{ .Release.Name }} ..."
+          sleep 10
+          {{- if .Values.migration.fail }}
+          echo "migration FAILED"; exit 1
+          {{- else }}
+          echo "migration done"
+          {{- end }}
+{{- end }}
